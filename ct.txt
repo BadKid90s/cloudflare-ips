@@ -1,4 +1,4 @@
-cf1.danfeng.eu.org:8443#孤舟·照月
+cf4.danfeng.eu.org:8443#孤舟·照月
 cf2.danfeng.eu.org:8443#清川·听雨
 cf3.danfeng.eu.org:8443#长风·入海
 34.80.145.45:443#TW
