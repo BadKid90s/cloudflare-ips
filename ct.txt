@@ -14,3 +14,4 @@ cf3.danfeng.eu.org:8443#长风·入海
 154.17.18.0:443#US CMIN2 67.67Mbps DMIT
 179.255.124.28:443#US CMIN2 66.30Mbps DMIT
 179.253.246.18:443#US CMIN2 65.33Mbps DMIT
+speedtest.noreply.bbroot.com
