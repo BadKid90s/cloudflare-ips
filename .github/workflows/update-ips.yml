@@ -33,13 +33,28 @@ jobs:
         run: python cloudflare_ips.py --wait 2000 --out ips.txt
 
       - name: Commit and push ips.txt
+        id: commit
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add ips.txt
           if git diff --cached --quiet; then
             echo "ips.txt unchanged, skip commit"
+            echo "changed=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
           git commit -m "chore: 更新 Cloudflare 优选 IP"
           git push
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Purge jsDelivr cache
+        if: steps.commit.outputs.changed == 'true'
+        env:
+          REPO: ${{ github.repository }}
+        run: |
+          # 等 GitHub raw 生效后再清 CDN，避免 purge 回源到旧文件
+          sleep 3
+          curl -fsS "https://purge.jsdelivr.net/gh/${REPO}@main/ips.txt"
+          echo
+          curl -fsS "https://purge.jsdelivr.net/gh/${REPO}/ips.txt"
+          echo
