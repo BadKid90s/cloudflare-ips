@@ -1,14 +1,7 @@
+cf1.danfeng.eu.org:8443#清川·入海
+cf2.danfeng.eu.org:8443#清川·照月
+cf3.danfeng.eu.org:8443#长风·映雪
+cf4.danfeng.eu.org:8443#孤舟·远渡
 cf4.danfeng.eu.org:8443#孤舟·照月
-cf2.danfeng.eu.org:8443#清川·听雨
-cf3.danfeng.eu.org:8443#长风·入海
-103.131.189.125:443#台湾-TW
-34.84.26.163:443#台湾2-TW
-162.245.221.26:49214#香港-HK
-188.166.213.127:443#新加坡-SG
-47.130.132.35:443#新加坡2-SG
-64.176.230.12:443#韩国3-KR
-131.186.26.94:443#韩国2-KR
-132.145.89.240:443#韩国1-KR
-154.17.18.0:443#US CMIN2 67.67Mbps DMIT
-179.255.124.28:443#US CMIN2 66.30Mbps DMIT
+*.cloudflare.19931110.xyz#NB优选服务
 speedtest.noreply.bbroot.com#SpeedTest
