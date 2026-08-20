@@ -1,0 +1,42 @@
+name: Update Cloudflare IPs
+
+on:
+  schedule:
+    # 北京时间 06:00 / 18:00（UTC 22:00 / 10:00），每 12 小时一次
+    - cron: "0 10,22 * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: update-ips
+  cancel-in-progress: false
+
+jobs:
+  update-ips:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: "3.12"
+
+      - name: Fetch IPs
+        run: python cloudflare_ips.py --out ips.txt
+
+      - name: Commit and push ips.txt
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ips.txt
+          if git diff --cached --quiet; then
+            echo "ips.txt unchanged, skip commit"
+            exit 0
+          fi
+          git commit -m "chore: 更新 Cloudflare 优选 IP"
+          git push
