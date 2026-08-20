@@ -6,28 +6,67 @@ CloudFlare 优选 IP 解析脚本
 拼接为:  IP:PORT#线路-速度(带单位)
 
 用法:
-    python cloudflare_ips.py                # 在线抓取, 默认端口 443
+    python cloudflare_ips.py                # 打开网页等待刷新后解析, 默认端口 443
     python cloudflare_ips.py --port 2053    # 指定端口
+    python cloudflare_ips.py --wait 2000    # 打开页面后等待毫秒数, 默认 2000
     python cloudflare_ips.py --html cloudflare.html   # 解析本地已保存的页面
     python cloudflare_ips.py --top 5        # 每个线路取前 N 条
 """
 
 import argparse
 import re
+import shutil
+import subprocess
 import sys
-import urllib.request
 
 URL = "https://api.uouin.com/cloudflare.html"
 DEFAULT_PORT = "443"   # CloudFlare 常见端口: 443/2053/2083/2087/2096/8443, 可按需修改
+DEFAULT_WAIT_MS = 2000
 
 # 线路在页面上的出现顺序, 输出时保持该顺序
 LINE_ORDER = ["电信", "联通", "移动", "多线", "IPV6"]
 
 
-def fetch_html(url: str) -> str:
-    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-    with urllib.request.urlopen(req, timeout=30) as resp:
-        return resp.read().decode("utf-8", "ignore")
+def find_chrome() -> str | None:
+    for name in ("google-chrome", "google-chrome-stable", "chromium", "chromium-browser", "chrome"):
+        path = shutil.which(name)
+        if path:
+            return path
+    return None
+
+
+def fetch_html(url: str, wait_ms: int = DEFAULT_WAIT_MS) -> str:
+    """用无头 Chrome 打开页面, 等待 JS 刷新表格后再取 DOM。"""
+    chrome = find_chrome()
+    if not chrome:
+        print("未找到 Chrome/Chromium, 无法加载页面刷新后的数据", file=sys.stderr)
+        sys.exit(1)
+
+    print(f"打开页面并等待 {wait_ms}ms: {url}")
+    cmd = [
+        chrome,
+        "--headless=new",
+        "--disable-gpu",
+        "--no-sandbox",
+        "--disable-dev-shm-usage",
+        "--dump-dom",
+        f"--virtual-time-budget={wait_ms}",
+        url,
+    ]
+    try:
+        proc = subprocess.run(cmd, capture_output=True, timeout=60)
+    except subprocess.TimeoutExpired:
+        print("浏览器打开页面超时", file=sys.stderr)
+        sys.exit(1)
+
+    html = proc.stdout.decode("utf-8", "ignore")
+    if "<tr" not in html:
+        err = proc.stderr.decode("utf-8", "ignore").strip()
+        print("浏览器未返回表格 DOM", file=sys.stderr)
+        if err:
+            print(err[-1000:], file=sys.stderr)
+        sys.exit(1)
+    return html
 
 
 def parse_table(html: str) -> list[dict]:
@@ -64,11 +103,12 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="CloudFlare 优选IP按线路取速度TopN并拼接")
     parser.add_argument("--port", default=DEFAULT_PORT, help="拼接端口, 默认 443")
     parser.add_argument("--html", help="使用本地 HTML 文件解析(跳过网络抓取)")
+    parser.add_argument("--wait", type=int, default=DEFAULT_WAIT_MS, help="打开页面后等待毫秒数, 默认 2000")
     parser.add_argument("--top", type=int, default=3, help="每个线路取速度最高的前 N 条, 默认 3")
     parser.add_argument("--out", default="cloudflare_top.txt", help="结果输出文件, 默认 cloudflare_top.txt")
     args = parser.parse_args()
 
-    html = open(args.html, encoding="utf-8", errors="ignore").read() if args.html else fetch_html(URL)
+    html = open(args.html, encoding="utf-8", errors="ignore").read() if args.html else fetch_html(URL, args.wait)
     data = parse_table(html)
     if not data:
         print("未解析到任何数据, 请检查页面结构", file=sys.stderr)
