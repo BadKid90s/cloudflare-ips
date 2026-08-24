@@ -5,6 +5,7 @@ cf4.danfeng.eu.org:8443#孤舟·远渡
 cf4.danfeng.eu.org:8443#孤舟·照月
 *.cloudflare.19931110.xyz#NB优选服务
 speedtest.noreply.bbroot.com#SpeedTest
+cloudflare.seeck.cn:443#seeck优选三网
 198.176.52.248:10123#日本东京
 82.40.33.134:28613#日本东京
 177.0.143.6:443#日本东京
