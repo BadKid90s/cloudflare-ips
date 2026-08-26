@@ -2,8 +2,8 @@ name: Update Cloudflare IPs
 
 on:
   schedule:
-    # 北京时间 06:00 / 18:00（UTC 22:00 / 10:00），每 12 小时一次
-    - cron: "0 10,22 * * *"
+    # 每 4 小时一次（UTC 00/04/08/12/16/20，北京时间 08/12/16/20/00/04）
+    - cron: "0 */4 * * *"
   workflow_dispatch:
 
 permissions: {}
@@ -30,7 +30,7 @@ jobs:
         uses: browser-actions/setup-chrome@48ad923757ca74d66703209fe939badbdf80f2f4 # v2.2.0
 
       - name: Fetch IPs
-        run: python cloudflare_ips.py --wait 2000 --out ips.txt
+        run: python cloudflare_ips.py --wait 2000 --top 10 --out ips.txt
 
       - name: Commit and push ips.txt
         id: commit
