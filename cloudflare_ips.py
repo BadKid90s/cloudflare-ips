@@ -2,7 +2,7 @@
 """
 CloudFlare 优选 IP 解析脚本
 从 https://api.uouin.com/cloudflare.html 抓取表格，
-按线路(电信/联通/移动/多线/IPV6)与本地结果合并，各保留速度最高的 10 条。
+按线路(电信/联通/移动/多线/IPV6)与本地结果合并，各保留速度最高的 5 条。
 新测速高于本地则加入/更新，低于本地则淘汰。
 
 用法:
@@ -10,7 +10,7 @@ CloudFlare 优选 IP 解析脚本
     python cloudflare_ips.py --port 2053    # 指定端口
     python cloudflare_ips.py --wait 2000    # 打开页面后等待毫秒数, 默认 2000
     python cloudflare_ips.py --html cloudflare.html   # 解析本地已保存的页面
-    python cloudflare_ips.py --top 10       # 每个线路累计保留前 N 条
+    python cloudflare_ips.py --top 5        # 每个线路累计保留前 N 条
 """
 
 import argparse
@@ -23,7 +23,7 @@ import sys
 URL = "https://api.uouin.com/cloudflare.html"
 DEFAULT_PORT = "443"   # CloudFlare 常见端口: 443/2053/2083/2087/2096/8443, 可按需修改
 DEFAULT_WAIT_MS = 2000
-DEFAULT_TOP = 10
+DEFAULT_TOP = 5
 
 # 线路在页面上的出现顺序, 输出时保持该顺序
 LINE_ORDER = ["电信", "联通", "移动", "多线", "IPV6"]
@@ -171,7 +171,7 @@ def main() -> None:
     parser.add_argument("--port", default=DEFAULT_PORT, help="拼接端口, 默认 443")
     parser.add_argument("--html", help="使用本地 HTML 文件解析(跳过网络抓取)")
     parser.add_argument("--wait", type=int, default=DEFAULT_WAIT_MS, help="打开页面后等待毫秒数, 默认 2000")
-    parser.add_argument("--top", type=int, default=DEFAULT_TOP, help="每个线路累计保留速度最高的前 N 条, 默认 10")
+    parser.add_argument("--top", type=int, default=DEFAULT_TOP, help="每个线路累计保留速度最高的前 N 条, 默认 5")
     parser.add_argument("--out", default="cloudflare_top.txt", help="结果输出文件, 默认 cloudflare_top.txt")
     args = parser.parse_args()
 

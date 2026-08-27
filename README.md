@@ -1,8 +1,8 @@
 # cloudflare-ips
 
-从 [CloudFlare 优选 IP](https://api.uouin.com/cloudflare.html) 抓取测速表格，按线路（电信 / 联通 / 移动 / 多线 / IPV6）与本地 `ips.txt` 合并，各累计速度最高的 10 条。新测速高于本地则加入或更新，低于本地则淘汰。
+从 [CloudFlare 优选 IP](https://api.uouin.com/cloudflare.html) 抓取测速表格，按线路（电信 / 联通 / 移动 / 多线 / IPV6）与本地 `ips.txt` 合并，各累计速度最高的 5 条。新测速高于本地则加入或更新，低于本地则淘汰。
 
-GitHub Actions 每 **4 小时** 自动更新；有变更时提交并清除 jsDelivr 缓存。
+GitHub Actions 定时更新已关闭；可在仓库 Actions 页手动运行，有变更时提交并清除 jsDelivr 缓存。
 
 ## 订阅地址
 
@@ -40,7 +40,7 @@ python cloudflare_ips.py --out ips.txt
 |------|------|------|
 | `--out` | 结果文件 | `cloudflare_top.txt` |
 | `--port` | 拼接端口 | `443` |
-| `--top` | 每条线路累计保留前 N 条 | `10` |
+| `--top` | 每条线路累计保留前 N 条 | `5` |
 | `--wait` | 打开页面后等待毫秒数 | `2000` |
 | `--html` | 解析本地 HTML，跳过浏览器 | — |
 
@@ -49,11 +49,11 @@ python cloudflare_ips.py --out ips.txt
 工作流：`.github/workflows/update-ips.yml`
 
 1. 无头 Chrome 打开页面，等待 2 秒后解析
-2. 与仓库中已有 `ips.txt` 按线路合并：同 IP 保留更高网速，再按网速取前 10 条
+2. 与仓库中已有 `ips.txt` 按线路合并：同 IP 保留更高网速，再按网速取前 5 条
 3. 有变化则提交推送
 4. 等待 3 秒后 purge jsDelivr 的 `@main` 与无版本号两个地址
 
-也可在仓库 Actions 页手动 **Run workflow**。
+定时 cron 已关闭。需要更新时在仓库 Actions 页手动 **Run workflow**。
 
 ## License
 
